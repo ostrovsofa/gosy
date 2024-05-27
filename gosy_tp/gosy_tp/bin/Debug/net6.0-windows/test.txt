@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfFilm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Film>
+    <Id>1</Id>
+    <Title>Фильм1</Title>
+    <Director>Эгов</Director>
+    <Year>2020</Year>
+    <Time>120</Time>
+  </Film>
+  <Film>
+    <Id>2</Id>
+    <Title>Фильм2</Title>
+    <Director>Андреев</Director>
+    <Year>2021</Year>
+    <Time>110</Time>
+  </Film>
+  <Film>
+    <Id>3</Id>
+    <Title>Фильм3</Title>
+    <Director>Скалкин</Director>
+    <Year>2021</Year>
+    <Time>90</Time>
+  </Film>
+  <Film>
+    <Id>4</Id>
+    <Title>Фильм4</Title>
+    <Director>Строева</Director>
+    <Year>2023</Year>
+    <Time>235</Time>
+  </Film>
+</ArrayOfFilm>

@@ -1,0 +1,566 @@
+// ПКМ по проекту - управление пакетами NuGet - Microsoft.EntityFrameworkCore + Microsoft.EntityFrameworkCore.Design 
+// консоль диспетчера пакетов, enable-migrations, Add-migration Название
+
+===Form1.cs===
+
+public partial class Form1 : Form
+    {
+        List<People> peoples = new List<People>();
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        public void addPeople()
+        {
+            dataGridView1.Columns.Clear();
+            peoples.Add(new People() { LastName = "Albina", FirstName = "Makhmutova", Age = 21, Group = "ISEbd-41" });
+            peoples.Add(new People() { LastName = "Marina", FirstName = "Efimova", Age = 21, Group = "ISEbd-41" });
+            peoples.Add(new People() { LastName = "Maria", FirstName = "Uba", Age = 22, Group = "ISEbd-41" });
+            peoples.Add(new People() { LastName = "Maria2", FirstName = "Uba2", Age = 20, Group = "ISEbd-31" });
+            dataGridView1.DataSource = null;
+            dataGridView1.DataSource = peoples;
+            dataGridView1.Refresh();
+            LoadCombobox();
+        }
+
+        public void getPeopleByGroup(string Group)
+        {
+            dataGridView1.Columns.Clear();
+            List<People> request = (from p in peoples where p.Group == Group select p).ToList();
+            dataGridView1.DataSource = request;
+        }
+
+        public void getPeopleByGroupLambda(string Group)
+        {
+            dataGridView1.Columns.Clear();
+            List<People> request = peoples.Where(p => p.Group == Group).OrderBy(p => p.Age).ToList(); ;
+            dataGridView1.DataSource = request;
+        }
+
+        public void LoadCombobox()
+        {
+            comboBox1.DataSource = null;
+            comboBox1.DataSource = peoples;
+            comboBox1.DisplayMember = "Group";
+            comboBox1.ValueMember = "Group";
+        }
+
+        public void groupPeopleByGroup()
+        {
+            dataGridView1.Columns.Clear();
+            var peopleGroups = peoples.GroupBy(p => p.Group);
+            dataGridView1.DataSource = null;
+            dataGridView1.Columns.Clear();
+            dataGridView1.Columns.Add("Group", "Group");
+            dataGridView1.Columns.Add("FirstName", "FirstName");
+            dataGridView1.Columns.Add("LastName", "LastName");
+            dataGridView1.Columns.Add("Age", "Age");
+            foreach (IGrouping<string, People> g in peopleGroups)
+            {
+                Console.WriteLine(g.Key);
+                dataGridView1.Rows.Add(g.Key);
+                foreach (var p in g)
+                {
+                    dataGridView1.Rows.Add(p.Group, p.FirstName, p.LastName, p.Age);
+                    Console.WriteLine("Имя: " + p.FirstName + " Фамилия: " + p.LastName);
+                }
+            }
+        }
+
+        void saveToFile(string path)
+        {
+            XmlSerializer xmlFormat = new XmlSerializer(typeof(List<People>));
+            using (Stream fStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                xmlFormat.Serialize(fStream, peoples);
+            }
+        }
+
+        void loadFromFile(string path)
+        {
+            dataGridView1.Columns.Clear();
+            XmlSerializer serializer = new XmlSerializer(typeof(List<People>));
+            using (Stream fStream = new FileStream(path, FileMode.Open))
+            {
+                using (XmlReader reader = XmlReader.Create(fStream))
+                {
+                    var buffPeoples = (List<People>)serializer.Deserialize(reader);
+                    if (buffPeoples != null)
+                    {
+                        peoples = buffPeoples;
+                        dataGridView1.DataSource = peoples;
+                    } 
+                    else
+                    {
+                        Console.WriteLine("Ошибочка");
+                    }
+                }
+            }
+        }
+
+        private void buttonSaveXML_Click(object sender, EventArgs e)
+        {
+            saveToFile("test.txt");
+        }
+
+        private void buttonLoadXML_Click(object sender, EventArgs e)
+        {
+            loadFromFile("test.txt");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            groupPeopleByGroup();
+        }
+
+        private void buttonAdd_Click(object sender, EventArgs e)
+        {
+            addPeople();
+        }
+
+        private void button_Click(object sender, EventArgs e)
+        {
+            getPeopleByGroup(comboBox1.SelectedValue.ToString());
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            getPeopleByGroupLambda(comboBox1.SelectedValue.ToString());
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var res = peoples
+              .GroupBy(x => x.Group)
+              .Select(x => new
+              {
+                  Name = x.Key,
+                  Count = x.Count()
+              });
+            textBox1.Text = res.Single(x => x.Count == res.Max(y => y.Count)).Name.ToString();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Form2 form = new Form2();
+            form.ShowDialog();
+            if (form.DialogResult == DialogResult.OK)
+            {
+                peoples.Add(form.people);
+                dataGridView1.DataSource = peoples;
+                dataGridView1.Refresh();
+                LoadCombobox();
+            }
+        }
+    }
+
+===Form1.Designer.cs===
+
+partial class Form1
+    {
+        /// <summary>
+        /// Обязательная переменная конструктора.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Освободить все используемые ресурсы.
+        /// </summary>
+        /// <param name="disposing">истинно, если управляемый ресурс должен быть удален; иначе ложно.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Код, автоматически созданный конструктором форм Windows
+
+        /// <summary>
+        /// Требуемый метод для поддержки конструктора — не изменяйте 
+        /// содержимое этого метода с помощью редактора кода.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.buttonAdd = new System.Windows.Forms.Button();
+            this.button = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.buttonSaveXML = new System.Windows.Forms.Button();
+            this.buttonLoadXML = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AllowDrop = true;
+            this.dataGridView1.AllowUserToOrderColumns = true;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.dataGridView1.Location = new System.Drawing.Point(16, 15);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowHeadersWidth = 51;
+            this.dataGridView1.Size = new System.Drawing.Size(733, 290);
+            this.dataGridView1.TabIndex = 1;
+            // 
+            // buttonAdd
+            // 
+            this.buttonAdd.Location = new System.Drawing.Point(16, 327);
+            this.buttonAdd.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonAdd.Name = "buttonAdd";
+            this.buttonAdd.Size = new System.Drawing.Size(248, 28);
+            this.buttonAdd.TabIndex = 2;
+            this.buttonAdd.Text = "Добавить список";
+            this.buttonAdd.UseVisualStyleBackColor = true;
+            this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
+            // 
+            // button
+            // 
+            this.button.Location = new System.Drawing.Point(419, 368);
+            this.button.Margin = new System.Windows.Forms.Padding(4);
+            this.button.Name = "button";
+            this.button.Size = new System.Drawing.Size(247, 28);
+            this.button.TabIndex = 3;
+            this.button.Text = "Получить людей по условию";
+            this.button.UseVisualStyleBackColor = true;
+            this.button.Click += new System.EventHandler(this.button_Click);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(419, 443);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(247, 28);
+            this.button2.TabIndex = 4;
+            this.button2.Text = "Группировать по группе";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // buttonSaveXML
+            // 
+            this.buttonSaveXML.Location = new System.Drawing.Point(16, 396);
+            this.buttonSaveXML.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonSaveXML.Name = "buttonSaveXML";
+            this.buttonSaveXML.Size = new System.Drawing.Size(248, 28);
+            this.buttonSaveXML.TabIndex = 5;
+            this.buttonSaveXML.Text = "Сохранить в XML";
+            this.buttonSaveXML.UseVisualStyleBackColor = true;
+            this.buttonSaveXML.Click += new System.EventHandler(this.buttonSaveXML_Click);
+            // 
+            // buttonLoadXML
+            // 
+            this.buttonLoadXML.Location = new System.Drawing.Point(15, 432);
+            this.buttonLoadXML.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonLoadXML.Name = "buttonLoadXML";
+            this.buttonLoadXML.Size = new System.Drawing.Size(248, 28);
+            this.buttonLoadXML.TabIndex = 6;
+            this.buttonLoadXML.Text = "Загрузить из XML";
+            this.buttonLoadXML.UseVisualStyleBackColor = true;
+            this.buttonLoadXML.Click += new System.EventHandler(this.buttonLoadXML_Click);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(419, 406);
+            this.button3.Margin = new System.Windows.Forms.Padding(4);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(299, 28);
+            this.button3.TabIndex = 8;
+            this.button3.Text = "Получить людей по условию с лямбда";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(416, 333);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(54, 16);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "Группа";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(416, 481);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(136, 16);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Популярная группа";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(508, 326);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(149, 24);
+            this.comboBox1.TabIndex = 11;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(419, 509);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(149, 22);
+            this.textBox1.TabIndex = 12;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(419, 538);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(247, 28);
+            this.button1.TabIndex = 13;
+            this.button1.Text = "Найти популярную";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(16, 360);
+            this.button4.Margin = new System.Windows.Forms.Padding(4);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(248, 28);
+            this.button4.TabIndex = 14;
+            this.button4.Text = "Добавить элемент";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(765, 587);
+            this.Controls.Add(this.button4);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.buttonLoadXML);
+            this.Controls.Add(this.buttonSaveXML);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button);
+            this.Controls.Add(this.buttonAdd);
+            this.Controls.Add(this.dataGridView1);
+            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Name = "Form1";
+            this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Button buttonAdd;
+        private System.Windows.Forms.Button button;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button buttonSaveXML;
+        private System.Windows.Forms.Button buttonLoadXML;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button4;
+    }
+
+===Form2.cs===
+
+public partial class Form2 : Form
+    {
+        public People people { get; set; }
+        public Form2()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            people = new People { FirstName = textBox1.Text, LastName = textBox2.Text, Age = Int32.Parse(textBox3.Text), Group = textBox4.Text };
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+    }
+
+===Form2.Designer.cs====
+
+partial class Form2
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.SuspendLayout();
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(20, 164);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(54, 16);
+            this.label4.TabIndex = 17;
+            this.label4.Text = "Группа";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(20, 117);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(62, 16);
+            this.label3.TabIndex = 16;
+            this.label3.Text = "Возраст";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(20, 69);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(66, 16);
+            this.label2.TabIndex = 15;
+            this.label2.Text = "Фамилия";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(20, 17);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(33, 16);
+            this.label1.TabIndex = 14;
+            this.label1.Text = "Имя";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(132, 212);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 28);
+            this.button1.TabIndex = 13;
+            this.button1.Text = "Добавить";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(24, 180);
+            this.textBox4.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(311, 22);
+            this.textBox4.TabIndex = 12;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(24, 135);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(311, 22);
+            this.textBox3.TabIndex = 11;
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(24, 89);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(311, 22);
+            this.textBox2.TabIndex = 10;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(24, 37);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(311, 22);
+            this.textBox1.TabIndex = 9;
+            // 
+            // Form2
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(363, 271);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.textBox4);
+            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.textBox1);
+            this.Name = "Form2";
+            this.Text = "Form2";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1;
+    }
+
+===People.cs===
+
+[Serializable]
+    public class People
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public int Age { get; set; }
+        public string Group { get; set; }
+    }
