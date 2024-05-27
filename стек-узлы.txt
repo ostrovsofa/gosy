@@ -1,0 +1,85 @@
+#include <iostream>
+#include <time.h>
+
+class StackNode {
+private:
+
+	struct Node {
+		int data;
+		struct Node* next;
+	};
+	struct Node* first = NULL;
+	size_t Size;
+public:
+
+	//добавление элемента
+	void push(int value) {
+		struct Node* Begin = (struct Node*)malloc(sizeof(struct Node));
+
+		Begin->next = first;
+		Begin->data = value; //присвоение значения
+		first = Begin;
+	}
+
+	//удаление элемента
+	int pop() {
+		int value = first->data;
+		struct Node* delNode = first;
+		first = first->next;
+		free(delNode);
+
+		return value;
+	}
+
+	//вывод стека
+	void print() {
+		struct Node* ptr = first;
+		while (ptr != NULL) {
+			printf("(%d) -> ", ptr->data);
+			ptr = ptr->next;
+		}
+		printf("NULL\n");
+	}
+
+	//вывод элемента головы
+	void top() {
+		printf("top element: %d\n", first->data);
+	}
+
+	//проверка на пустоту
+	void empty() {
+		if (first == NULL)
+			printf("\n=== stack is empty ===\n");
+		else
+			printf("\n=== stack is not empty ===\n");
+	}
+
+	//очистка стека
+	void clear() {
+		while (first != 0) {
+			struct Node* delNode = first;
+			first = first->next;
+			free(delNode);
+		}
+		first = NULL;
+	}
+
+};
+
+int main() {
+
+	setlocale(LC_ALL, "Rus");
+
+	StackNode stack;
+
+	stack.push(1);
+	stack.push(5);
+	stack.push(8);
+
+	stack.print();
+
+	stack.pop();
+
+	stack.print();
+
+}

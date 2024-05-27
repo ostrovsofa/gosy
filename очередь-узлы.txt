@@ -1,0 +1,109 @@
+#include <iostream>
+#include <time.h>
+
+class QueueNode {
+private:
+
+    struct Node {
+        int data;
+        struct Node* next;
+    };
+    struct Node* front = NULL;
+    struct Node* rear = NULL;
+    size_t Size;
+public:
+
+    //добавление элемента
+    void enqueue(int value) {
+        struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+        newNode->data = value;
+        newNode->next = NULL;
+
+        if (rear == NULL) {
+            front = rear = newNode;
+        }
+        else {
+            rear->next = newNode;
+            rear = newNode;
+        }
+    }
+
+    //удаление элемента
+    int dequeue() {
+        int value;
+        if (front == NULL) {
+            printf("Queue is empty\n");
+            return -1;
+        }
+        else {
+            struct Node* delNode = front;
+            value = delNode->data;
+            front = front->next;
+            free(delNode);
+            if (front == NULL) {
+                rear = NULL;
+            }
+            return value;
+        }
+    }
+
+    //вывод очереди
+    void print() {
+        struct Node* ptr = front;
+        while (ptr != NULL) {
+            std::cout << "(" << ptr->data << ") -> ";
+            ptr = ptr->next;
+        }
+        printf("NULL\n");
+    }
+
+    //вывод элемента в начале очереди
+    void frontElement() {
+        if (front == NULL) {
+            printf("Queue is empty\n");
+        }
+        else {
+            printf("Front element: %d\n", front->data);
+        }
+    }
+
+    //вывод элемента в конце очереди
+    void rearElement() {
+        if (rear == NULL) {
+            printf("Queue is empty\n");
+        }
+        else {
+            std::cout << "Rear element: " << rear->data << std::endl;
+        }
+    }
+
+    //проверка на пустоту
+    void empty() {
+        if (front == NULL)
+            printf("\n=== queue is empty ===\n");
+        else
+            printf("\n=== queue is not empty ===\n");
+    }
+
+    //очистка очереди
+    void clear() {
+        while (front != NULL) {
+            struct Node* delNode = front;
+            front = front->next;
+            free(delNode);
+        }
+        front = rear = NULL;
+    }
+
+};
+
+int main() {
+    setlocale(LC_ALL, "Rus");
+    QueueNode queue;
+    queue.enqueue(1);
+    queue.enqueue(5);
+    queue.enqueue(8);
+    queue.print();
+    queue.dequeue();
+    queue.print();
+}

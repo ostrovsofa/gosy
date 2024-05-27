@@ -1,0 +1,385 @@
+
+// в среднем - O(log(n))
+// добавление, удаление, вывод
+class Program
+    {
+        static void Main(string[] args)
+        {
+            {
+                //бинарное дерево
+                BinaryTree binaryTree = new BinaryTree(8);
+                binaryTree.add(3);
+                binaryTree.add(1);
+                binaryTree.add(6);
+                binaryTree.add(7);
+                binaryTree.add(4);
+                binaryTree.add(10);
+                binaryTree.add(14);
+                binaryTree.add(13);
+                binaryTree.Remove(8);
+
+                binaryTree.DisplayTree();
+                Console.WriteLine();
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 8));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 3));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 1));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 6));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 7));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 4));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 10));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 14));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 13));
+                Console.WriteLine(binaryTree.Find(binaryTree.start, 20));
+
+            }
+        }
+
+
+        /// <summary>
+        /// Вершина бинарного дерева
+        /// </summary>
+        public class node
+        {
+            public int data { get; set; }
+            public node less { get; set; }
+            public node bigger { get; set; }
+            public node(int number)
+            {
+                data = number;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public class BinaryTree
+        {
+            public node start { get; set; }
+            public BinaryTree(int number)
+            {
+                start = new node(number);
+            }
+            //добавление
+            public void add(int number)
+            {
+                add(start, number);
+            }
+            /// <summary>
+            /// Добавление
+            /// Берем ноду если больше значений внутри нее то мы идем вправо если там пустая ячейка создаем ноду,
+            /// если там занято рекурсивно запускаем добавление
+            /// с меньше аналогично
+            /// </summary>
+            /// <param name="node"></param>
+            /// <param name="number"></param>
+            private void add(node node, int number)
+            {
+                if (number > node.data)
+                {
+                    if (node.bigger == null)
+                    {
+                        node.bigger = new node(number);
+                    }
+                    else
+                    {
+                        add(node.bigger, number);
+                    }
+                }
+                else
+                {
+                    if (node.less == null)
+                    {
+                        node.less = new node(number);
+                    }
+                    else
+                    {
+                        add(node.less, number);
+                    }
+                }
+            }
+
+            public void Remove(int key)
+            {
+                RemoveHelper(start, key);
+            }
+            /// <summary>
+            /// Удаление ноды из дерева
+            /// 
+            /// </summary>
+            /// <param name="root"></param>
+            /// <param name="key"></param>
+            /// <returns></returns>
+            private node RemoveHelper(node root, int key)
+            {
+
+                if (root == null)
+                    return root;
+                //если ключ меньше корневого узла, идем влево рекурсивно
+                if (key < root.data)
+                    root.less = RemoveHelper(root.less, key);
+                // если ключ больше, чем корневой узел, идем вправо рекурсивно
+                else if (key > root.data)
+                {
+                    root.bigger = RemoveHelper(root.bigger, key);
+                }
+                //иначе мы нашли ключ
+                else
+                {
+                    //случай 1: удаляемый узел не имеет дочерних элементов
+                    if (root.less == null && root.bigger == null)
+                    {
+                        //просто удаляем ноду
+                        root = null;
+                    }
+                    //случай 2: удаляемый узел имеет два дочерних элемента
+                    else if (root.less != null && root.bigger != null)
+                    {
+                        var maxNode = FindMin(root.bigger);
+                        //скопируйте значение
+                        root.data = maxNode.data;
+                        root.bigger = RemoveHelper(root.bigger, maxNode.data);
+                    }
+                    //узел, который нужно удалить, имеет один дочерней элемент
+                    else
+                    {
+                        var child = root.less != null ? root.less : root.bigger;
+                        root = child;
+                    }
+
+                }
+                return root;
+
+            }
+            /// <summary>
+            /// Поиск минимального относительно принятой ноды
+            /// </summary>
+            /// <param name="node"></param>
+            /// <returns></returns>
+            private node FindMin(node node)
+            {
+                while (node.less != null)
+                {
+                    node = node.less;
+                }
+                return node;
+            }
+            /// <summary>
+            /// рекурсивный вывод дерева
+            /// идем макс на лево и потом чисто на право
+            /// </summary>
+            /// <param name="root"></param>
+            private void DisplayTree(node root)
+            {
+                if (root == null) return;
+
+                DisplayTree(root.less);
+                System.Console.Write(root.data + " ");
+                DisplayTree(root.bigger);
+            }
+
+            public void DisplayTree()
+            {
+                DisplayTree(start);
+            }
+            /// <summary>
+            /// Нахождение 
+            /// Обход в глубину пока не встретим этот элемент
+            /// </summary>
+            /// <param name="node">нода</param>
+            /// <param name="num">значение ноды</param>
+            /// <returns></returns>
+            public Boolean Find(node node, int num)
+            {
+                if (node == null) return false;
+                if (node.data == num)
+                {
+                    return true;
+                }
+                else if (num < node.data)
+                {
+                    return Find(node.less, num);
+                }
+                else if (num > node.data)
+                {
+                    return Find(node.bigger, num);
+                }
+                return false;
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <time.h>
+#define N 10
+
+struct node {
+    int key; //ключ узла
+    struct node* left, * right; //левый потомок, правый потомок
+};
+
+//создание node
+struct node* newNode(int item) {
+    struct node* temp = (struct node*)malloc(sizeof(struct node));
+    temp->key = item;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+//симметричный обход
+void inorder(struct node* root) {
+    //Пока не встретится пустой узел
+    if (root != NULL) {
+        //Рекурсивная функция для левого поддерева
+        inorder(root->left);
+
+        //Отображаем корень дерева
+        printf("%d -> ", root->key);
+
+        //Рекурсивная функция для правого поддерева
+        inorder(root->right);
+    }
+}
+
+//обратный обход
+void preorder(struct node* root) {
+    //Пока не встретится пустой узел
+    if (root != NULL) {
+        //Отображаем корень дерева
+        printf("%d -> ", root->key);
+
+        //Рекурсивная функция для левого поддерева
+        inorder(root->left);
+
+        //Рекурсивная функция для правого поддерева
+        inorder(root->right);
+    }
+}
+
+//прямой обход
+void postorder(struct node* root) {
+    //Пока не встретится пустой узел
+    if (root != NULL) {
+        //Рекурсивная функция для левого поддерева
+        inorder(root->left);
+
+        //Рекурсивная функция для правого поддерева
+        inorder(root->right);
+
+        //Отображаем корень дерева
+        printf("%d -> ", root->key);
+    }
+}
+
+//добавление узлов
+struct node* insert(struct node* node, int key) {
+    if (node == NULL) return newNode(key); // Если дерева нет, то формируем корень
+
+    if (key < node->key) // условие добавление левого потомка
+        node->left = insert(node->left, key);
+    else // условие добавление правого потомка
+        node->right = insert(node->right, key);
+    return node;
+}
+
+//функция для поиска минимального значения в узле
+struct node* minValueNode(struct node* node) {
+    struct node* current = node;
+    //находим крайний левый 
+    //узел с минимальным значением не будет иметь левого дочернего элемента
+    while (current && current->left != NULL)
+        current = current->left; // крайний левый элемент будет минимальным
+    return current;
+}
+
+//удаление конкретного узла
+struct node* deleteNode(struct node* root, int key) {
+    //вернуть если дерево пусто
+    if (root == NULL) return root;
+
+    //найти узел, который нужно удалить
+    if (key < root->key)
+        root->left = deleteNode(root->left, key);
+    else if (key > root->key)
+        root->right = deleteNode(root->right, key);
+
+    else {
+        //если у узла один дочерний элемент или его вообще нет
+        if (root->left == NULL) { //удаляемый элемент находится в левом поддереве текущего поддерева
+            struct node* temp = root->right;
+            free(root);
+            return temp;
+        }
+        else if (root->right == NULL) { //удаляемый элемент находится в правом поддереве
+            struct node* temp = root->left;
+            free(root);
+            return temp;
+        }
+
+        //если два дочерних элемента
+        else {
+            struct node* temp = minValueNode(root->right);
+            root->key = temp->key; //не место удаляемого узла поместить неупоряд. преемника
+            root->right = deleteNode(root->right, temp->key); //удалить неупоряд. преемника
+        }
+    }
+    return root;
+}
+
+int main() {
+    setlocale(LC_ALL, "rus");
+
+    struct node* root = NULL;
+    
+    root = newNode(6); // корень узла
+
+    root = insert(root, 1); // добавление
+    root = insert(root, 3);
+    root = insert(root, 0);
+
+    deleteNode(root, 3); // удаление
+
+    root = insert(root, 6);
+    root = insert(root, 9);
+    
+    struct node* minNode = minValueNode(root); // поиск минимального
+    printf("минимальное значение узла = %d\n", minNode->key);
+
+    preorder(root);
+    printf("обатный обход\n");
+
+    inorder(root);
+    printf("симметичный обход\n");
+
+    postorder(root);
+    printf("прямой обход\n");
+
+}
